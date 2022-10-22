@@ -43,7 +43,10 @@
 </template>
 
 <script lang="ts">
+import { auth } from '@/includes/firebase';
 import { defineComponent } from 'vue';
+import useUserStore from '@/stores/user';
+import { mapActions } from 'pinia';
 
 export default defineComponent({
   name: 'LoginForm',
@@ -60,15 +63,24 @@ export default defineComponent({
     };
   },
   methods: {
-    login(values: { email: string; password: string }) {
+    ...mapActions(useUserStore, {
+      loginUser: 'login',
+    }),
+    async login({ email, password }: { email: string; password: string }) {
       this.login_show_alert = true;
       this.login_in_submission = true;
       this.login_alert_variant = 'bg-blue-500';
       this.login_alert_msg = 'Please wait! We are logging you in.';
-
-      this.login_alert_variant = 'bg-green-500';
-      this.login_alert_msg = 'Success! Your account has been created.';
-      console.log(values);
+      try {
+        this.loginUser({ email, password });
+        this.login_alert_variant = 'bg-green-500';
+        this.login_alert_msg = 'Success! Your account has been created.';
+      } catch (e: any) {
+        this.login_in_submission = false;
+        this.login_alert_variant = 'bg-red-500';
+        this.login_alert_msg =
+          e.message || 'An unexpected error occured. Please try again later.';
+      }
     },
   },
 });

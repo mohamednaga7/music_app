@@ -120,16 +120,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-
-interface FormValues {
-  name: string;
-  email: string;
-  age: number;
-  password: string;
-  confirm_password: string;
-  country: string;
-  tos: boolean;
-}
+import useUserState, { type RegisterFormValues } from '@/stores/user';
+import { mapActions } from 'pinia';
 
 export default defineComponent({
   name: 'RegisterForm',
@@ -154,16 +146,28 @@ export default defineComponent({
     };
   },
   methods: {
-    register(values: FormValues) {
+    ...mapActions(useUserState, {
+      createUser: 'register',
+    }),
+    async register(values: RegisterFormValues) {
       this.registration_show_alert = true;
       this.registration_in_submission = true;
       this.registration_alert_variant = 'bg-blue-500';
       this.registration_alert_msg =
         'Please wait! Your account is being created.';
 
-      this.registration_alert_variant = 'bg-green-500';
-      this.registration_alert_msg = 'Success! Your account has been created.';
-      console.log(values);
+      try {
+        this.createUser(values);
+        this.registration_alert_variant = 'bg-green-500';
+        this.registration_alert_msg = 'Success! Your account has been created.';
+        window.location.reload();
+      } catch (e: any) {
+        console.log(e);
+        this.registration_in_submission = false;
+        this.registration_alert_variant = 'bg-red-500';
+        this.registration_alert_msg =
+          e.message || 'An unexpected error occured. Please try again later.';
+      }
     },
   },
 });
