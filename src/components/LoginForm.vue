@@ -49,6 +49,7 @@ import { mapActions } from 'pinia';
 
 export default defineComponent({
   name: 'LoginForm',
+  props: ['closeModal'],
   data() {
     return {
       loginSchema: {
@@ -74,7 +75,9 @@ export default defineComponent({
         this.loginUser({ email, password });
         this.login_alert_variant = 'bg-green-500';
         this.login_alert_msg = 'Success! Your account have been logged in.';
-        window.location.reload();
+        setTimeout(() => {
+          this.closeModal();
+        }, 1000);
       } catch (e: any) {
         this.login_in_submission = false;
         this.login_alert_variant = 'bg-red-500';

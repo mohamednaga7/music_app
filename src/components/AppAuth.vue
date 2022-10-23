@@ -63,7 +63,7 @@
               >
             </li>
           </ul>
-          <LoginForm v-if="tab === 'login'" />
+          <LoginForm :close-modal="closeModal" v-if="tab === 'login'" />
           <RegisterForm v-else />
         </div>
       </div>
