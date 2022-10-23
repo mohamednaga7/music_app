@@ -20,3 +20,4 @@ export const storage = firebase.storage();
 export const db = firebase.firestore();
 export const usersCollection = db.collection('users');
 export const songsCollection = db.collection('songs');
+export const commentsCollection = db.collection('comments');

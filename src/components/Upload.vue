@@ -62,7 +62,9 @@ export default defineComponent({
   props: {
     addSong: {
       required: true,
-      type: Object as () => (song: any) => void,
+      type: Function,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      default: (song: any) => {},
     },
   },
   data(): {

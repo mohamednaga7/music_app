@@ -82,14 +82,19 @@ export default defineComponent({
       required: true,
     },
     updateSong: {
-      type: Object as () => (
+      type: Function,
+      default: (
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         index: number,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         values: { modified_name: string; genre?: string }
-      ) => void,
+      ) => {},
       required: true,
     },
     removeSong: {
-      type: Object as () => (index: number) => void,
+      type: Function,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      default: (index: number) => {},
       required: true,
     },
     index: {
@@ -97,7 +102,9 @@ export default defineComponent({
       required: true,
     },
     updateUnsavedFlag: {
-      type: Object as () => (value: boolean) => void,
+      type: Function,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      default: (value: boolean) => {},
       required: false,
     },
   },

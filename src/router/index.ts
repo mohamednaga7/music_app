@@ -8,6 +8,7 @@ import AboutView from '@/views/AboutView.vue';
 import ManageView from '@/views/ManageView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
 import useUserStore from '@/stores/user';
+import Song from '@/components/Song.vue';
 
 const routes: readonly RouteRecordRaw[] = [
   {
@@ -34,6 +35,11 @@ const routes: readonly RouteRecordRaw[] = [
   {
     path: '/manage',
     redirect: { name: 'manage' },
+  },
+  {
+    name: 'song',
+    path: '/song/:id',
+    component: Song,
   },
   {
     path: '/:catchAll(.*)*',
