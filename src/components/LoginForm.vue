@@ -43,7 +43,6 @@
 </template>
 
 <script lang="ts">
-import { auth } from '@/includes/firebase';
 import { defineComponent } from 'vue';
 import useUserStore from '@/stores/user';
 import { mapActions } from 'pinia';

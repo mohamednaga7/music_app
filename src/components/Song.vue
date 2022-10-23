@@ -16,11 +16,10 @@
           <i
             class="fas"
             :class="{
-              'fa-pause': current_song?.docId === song?.docId && playing,
+              'fa-pause': current_song?.docId === $route.params.id && playing,
               'fa-play':
                 !current_song ||
-                !song ||
-                current_song.docId !== song.docId ||
+                current_song.docId !== $route.params.id ||
                 !playing,
             }"
           ></i>
@@ -221,8 +220,10 @@ export default defineComponent({
       this.$router.push({ name: 'home' });
       return;
     }
-    this.song = docSnapshot.data() as Song;
-
+    this.song = {
+      ...(docSnapshot.data() as Song),
+      docId: docSnapshot.id,
+    };
     const { sort } = this.$route.query;
 
     this.sort = sort === '1' || sort === '2' ? sort : '1';
