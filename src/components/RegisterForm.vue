@@ -125,6 +125,7 @@ import { mapActions } from 'pinia';
 
 export default defineComponent({
   name: 'RegisterForm',
+  props: ['closeModal'],
   data() {
     return {
       schema: {
