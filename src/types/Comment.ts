@@ -5,4 +5,5 @@ export interface Comment {
   name: string;
   uid: string;
   docId?: string;
+  readableDate?: string;
 }
