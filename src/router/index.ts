@@ -3,12 +3,13 @@ import {
   createWebHistory,
   type RouteRecordRaw,
 } from 'vue-router';
-import HomeView from '@/views/HomeView.vue';
-import AboutView from '@/views/AboutView.vue';
-import ManageView from '@/views/ManageView.vue';
-import NotFoundView from '@/views/NotFoundView.vue';
 import useUserStore from '@/stores/user';
 import Song from '@/components/SongComponent.vue';
+
+const HomeView = () => import('@/views/HomeView.vue');
+const ManageView = () => import('@/views/ManageView.vue');
+const NotFoundView = () => import('@/views/NotFoundView.vue');
+const AboutView = () => import('@/views/AboutView.vue');
 
 const routes: readonly RouteRecordRaw[] = [
   {
