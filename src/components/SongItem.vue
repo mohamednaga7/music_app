@@ -4,42 +4,42 @@
   >
     <div>
       <router-link
-        :to="{ name: 'song', params: { id: song.docId } }"
+        :to="{ name: 'song', params: { id: props.song.docId } }"
         href="#"
         class="font-bold block text-gray-600"
-        >{{ song.modified_name }}</router-link
+        >{{ props.song.modified_name }}</router-link
       >
-      <span class="text-gray-500 text-sm">{{ song.display_name }}</span>
+      <span class="text-gray-500 text-sm">{{ props.song.display_name }}</span>
     </div>
 
     <div class="text-gray-600 text-lg">
       <router-link
         custom
-        :to="{ name: 'song', params: { id: song.docId }, hash: '#comments' }"
+        :to="{
+          name: 'song',
+          params: { id: props.song.docId },
+          hash: '#comments',
+        }"
         v-slot="{ navigate }"
       >
         <span class="comments" @click="navigate">
           <i class="fa fa-comments text-gray-600"></i>
-          {{ song.comment_count }}
+          {{ props.song.comment_count }}
         </span></router-link
       >
     </div>
   </li>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { Song } from '@/types/Song';
-import { defineComponent } from 'vue';
+import { defineProps } from 'vue';
 
-export default defineComponent({
-  name: 'AppSongItem',
-  props: {
-    song: {
-      required: true,
-      type: Object as () => Song,
-    },
-  },
-});
+export interface Props {
+  song: Song;
+}
+
+const props = defineProps<Props>();
 </script>
 
 <style lang="scss" scoped></style>

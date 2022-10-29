@@ -8,7 +8,7 @@ import AboutView from '@/views/AboutView.vue';
 import ManageView from '@/views/ManageView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
 import useUserStore from '@/stores/user';
-import Song from '@/components/Song.vue';
+import Song from '@/components/SongComponent.vue';
 
 const routes: readonly RouteRecordRaw[] = [
   {

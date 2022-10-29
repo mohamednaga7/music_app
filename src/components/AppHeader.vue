@@ -41,25 +41,22 @@
   </header>
 </template>
 
-<script lang="ts">
-import { modalStore } from '@/stores/modal';
+<script setup lang="ts">
+import { modalStore as useModalStore } from '@/stores/modal';
 import useUserStore from '@/stores/user';
-import { mapStores } from 'pinia';
-import { defineComponent } from 'vue';
-export default defineComponent({
-  name: 'AppHeader',
-  computed: {
-    ...mapStores(modalStore, useUserStore),
-  },
-  methods: {
-    toggleAuthModal() {
-      this.modalStore.isOpen = !this.modalStore.isOpen;
-    },
-    signOut() {
-      this.userStore.signout();
+import { useRoute, useRouter } from 'vue-router';
+const modalStore = useModalStore();
+const userStore = useUserStore();
+const toggleAuthModal = () => {
+  modalStore.isOpen = !modalStore.isOpen;
+};
 
-      if (this.$route.meta.requiresAuth) this.$router.push({ name: 'home' });
-    },
-  },
-});
+const route = useRoute();
+const router = useRouter();
+
+const signOut = () => {
+  userStore.signout();
+
+  if (route.meta.requiresAuth) router.push({ name: 'home' });
+};
 </script>

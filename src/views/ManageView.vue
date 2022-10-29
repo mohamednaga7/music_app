@@ -2,7 +2,7 @@
   <section class="container mx-auto mt-6">
     <div class="md:grid md:grid-cols-3 md:gap-4">
       <div class="col-span-1">
-        <app-upload ref="upload" :addSong="addSong"></app-upload>
+        <upload-component ref="upload" :addSong="addSong"></upload-component>
       </div>
 
       <div class="col-span-2">
@@ -33,77 +33,62 @@
   </section>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import AppUpload from '@/components/Upload.vue';
+<script setup lang="ts">
+import { ref } from 'vue';
+import UploadComponent from '@/components/UploadComponent.vue';
 import { auth, songsCollection } from '@/includes/firebase';
 import type { Song } from '@/types/Song';
 import CompositionItem from '@/components/CompositionItem.vue';
-// import useUserStore from '@/stores/user';
+import { onBeforeRouteLeave } from 'vue-router';
 
-export default defineComponent({
-  name: 'app-manage',
-  components: { AppUpload, CompositionItem },
-  data(): {
-    songs: Song[];
-    unsavedFlag: boolean;
-  } {
-    return {
-      songs: [],
-      unsavedFlag: false,
-    };
-  },
-  async created() {
-    const snapshot = await songsCollection
-      .where('uid', '==', auth.currentUser?.uid)
-      .get();
+const songs = ref<Song[]>([]);
+const unsavedFlag = ref<boolean>(false);
 
-    snapshot.forEach(this.addSong);
-  },
-  methods: {
-    updateSong(
-      index: number,
-      values: {
-        modified_name: string;
-        genre?: string;
-      }
-    ) {
-      this.songs[index].modified_name = values.modified_name;
-      this.songs[index].genre = values.genre;
-    },
-    removeSong(i: number) {
-      this.songs.splice(i, 1);
-    },
-    addSong(document: any) {
-      const song = {
-        ...(document.data() as Song),
-        docId: document.id,
-      };
+const updateSong = async (
+  index: number,
+  values: {
+    modified_name: string;
+    genre?: string;
+  }
+) => {
+  songs.value[index].modified_name = values.modified_name;
+  songs.value[index].genre = values.genre;
+};
+const removeSong = (i: number) => {
+  songs.value.splice(i, 1);
+};
 
-      this.songs.push(song);
-    },
-    updateUnsavedFlag(value: boolean) {
-      this.unsavedFlag = value;
-    },
-  },
-  beforeRouteLeave(to, from, next) {
-    if (!this.unsavedFlag) {
-      next();
-    } else {
-      const leave = confirm(
-        'You have unsaved changes. Are you sure you want to leave?'
-      );
-      next(leave);
-    }
-  },
-  //   beforeRouteEnter(to, from, next) {
-  //     const store = useUserStore();
+const addSong = (document: any) => {
+  const song = {
+    ...(document.data() as Song),
+    docId: document.id,
+  };
 
-  //     if (store.userLoggedIn) {
-  //       next();
-  //     } else {
-  //       next({ name: 'home' });
-  //     }
-  //   },
+  songs.value.push(song);
+};
+
+const updateUnsavedFlag = (value: boolean) => {
+  unsavedFlag.value = value;
+};
+
+const fetchSongs = async () => {
+  const snapshot = await songsCollection
+    .where('uid', '==', auth.currentUser?.uid)
+    .get();
+
+  snapshot.forEach(addSong);
+};
+
+fetchSongs();
+
+onBeforeRouteLeave((to, from, next) => {
+  if (!unsavedFlag.value) {
+    next();
+  } else {
+    const leave = confirm(
+      'You have unsaved changes. Are you sure you want to leave?'
+    );
+    next(leave);
+  }
 });
 </script>

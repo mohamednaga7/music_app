@@ -8,6 +8,11 @@ import './assets/main.css';
 import { VeeValidatePlugin } from './includes/validation';
 import { auth } from './includes/firebase';
 import { Icon } from './directives/icon';
+import { registerSW } from 'virtual:pwa-register';
+
+registerSW({
+  immediate: true,
+});
 
 let app: VueApp<Element>;
 

@@ -69,95 +69,69 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { songsCollection, storage } from '@/includes/firebase';
 import type { Song } from '@/types/Song';
-import { defineComponent } from 'vue';
+import { defineProps, ref } from 'vue';
 
-export default defineComponent({
-  name: 'composition-item',
-  props: {
-    song: {
-      type: Object as () => Song,
-      required: true,
-    },
-    updateSong: {
-      type: Function,
-      default: (
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        index: number,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        values: { modified_name: string; genre?: string }
-      ) => {},
-      required: true,
-    },
-    removeSong: {
-      type: Function,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      default: (index: number) => {},
-      required: true,
-    },
-    index: {
-      type: Number,
-      required: true,
-    },
-    updateUnsavedFlag: {
-      type: Function,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      default: (value: boolean) => {},
-      required: false,
-    },
-  },
-  data() {
-    return {
-      showForm: false,
-      schema: {
-        modified_name: 'required',
-        genre: 'alpha_spaces',
-      },
-      in_submission: false,
-      show_alert: false,
-      alert_variant: 'bg-blue-500',
-      alert_message: 'Please wait! Updating song info.',
-    };
-  },
-  methods: {
-    async edit(values: { modified_name: string; genre?: string }) {
-      this.in_submission = true;
-      this.show_alert = true;
-      this.alert_variant = 'bg-blue-500';
-      this.alert_message = 'Please wait! Updating song info.';
-      try {
-        await songsCollection.doc(this.song.docId).update({
-          modified_name: values.modified_name,
-          genre: values.genre || '',
-        });
-      } catch (e) {
-        this.in_submission = false;
-        this.alert_variant = 'bg-red-500';
-        this.alert_message = 'Something went wrong! Try again later';
-        return;
-      }
+export interface CompositionItemProps {
+  song: Song;
+  updateSong: (
+    index: number,
+    values: { modified_name: string; genre?: string }
+  ) => void;
+  removeSong: (index: number) => void;
+  index: number;
+  updateUnsavedFlag?: (flag: boolean) => void;
+}
 
-      await this.updateSong(this.index, values);
-      this.showForm = false;
+const props = defineProps<CompositionItemProps>();
 
-      this.in_submission = false;
-      this.alert_variant = 'bg-green-500';
-      this.alert_message = 'Success!';
-    },
-    async deleteSong() {
-      const storageRef = storage.ref();
-      const songRef = storageRef.child(`songs/${this.song.original_name}`);
+const showForm = ref<boolean>(false);
+const schema = {
+  modified_name: 'required',
+  genre: 'alpha_spaces',
+};
 
-      await songRef.delete();
+const in_submission = ref<boolean>(false);
+const show_alert = ref<boolean>(false);
+const alert_variant = ref<string>('bg-blue-500');
+const alert_message = ref<string>('Please wait! Updating song info.');
 
-      await songsCollection.doc(this.song.docId).delete();
+const edit = async (values: { modified_name: string; genre?: string }) => {
+  in_submission.value = true;
+  show_alert.value = true;
+  alert_variant.value = 'bg-blue-500';
+  alert_message.value = 'Please wait! Updating song info.';
+  try {
+    await songsCollection.doc(props.song.docId).update({
+      modified_name: values.modified_name,
+      genre: values.genre || '',
+    });
+  } catch (e) {
+    in_submission.value = false;
+    alert_variant.value = 'bg-red-500';
+    alert_message.value = 'Something went wrong! Try again later';
+    return;
+  }
 
-      this.removeSong(this.index);
-    },
-  },
-});
+  await props.updateSong(props.index, values);
+  showForm.value = false;
+
+  in_submission.value = false;
+  alert_variant.value = 'bg-green-500';
+  alert_message.value = 'Success!';
+};
+const deleteSong = async () => {
+  const storageRef = storage.ref();
+  const songRef = storageRef.child(`songs/${props.song.original_name}`);
+
+  await songRef.delete();
+
+  await songsCollection.doc(props.song.docId).delete();
+
+  props.removeSong(props.index);
+};
 </script>
 
 <style lang="scss" scoped></style>

@@ -1,27 +1,15 @@
-<script lang="ts">
-import AppHeaderVue from '@/components/AppHeader.vue';
-import AppAuthVue from '@/components/AppAuth.vue';
+<script setup lang="ts">
+import AppHeader from '@/components/AppHeader.vue';
+import AppAuth from '@/components/AppAuth.vue';
 import useUserStore from '@/stores/user';
-import { defineComponent } from 'vue';
-import { mapWritableState } from 'pinia';
 import { auth } from './includes/firebase';
-import Player from './components/Player.vue';
-export default defineComponent({
-  name: 'App',
-  computed: {
-    ...mapWritableState(useUserStore, ['userLoggedIn']),
-  },
-  components: {
-    AppHeader: AppHeaderVue,
-    AppAuth: AppAuthVue,
-    AppPlayer: Player,
-  },
-  created() {
-    if (auth.currentUser) {
-      this.userLoggedIn = true;
-    }
-  },
-});
+import AppPlayer from './components/AppPlayer.vue';
+
+const userStore = useUserStore();
+
+if (auth.currentUser) {
+  userStore.userLoggedIn = true;
+}
 </script>
 
 <template>

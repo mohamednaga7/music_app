@@ -45,75 +45,61 @@
   </main>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { songsCollection } from '@/includes/firebase';
 import type { Song } from '@/types/Song';
-import { defineComponent } from 'vue';
+import { onBeforeUnmount, reactive, ref } from 'vue';
 import SongItem from '../components/SongItem.vue';
 
-export default defineComponent({
-  name: 'AppHome',
-  data(): {
-    songs: Song[];
-    maxPerPage: number;
-    pendingRequests: boolean;
-  } {
-    return {
-      songs: [],
-      maxPerPage: 10,
-      pendingRequests: false,
-    };
-  },
-  async created() {
-    this.getSongs();
+const songs = reactive<Song[]>([]);
+const maxPerPage = ref<number>(10);
+const pendingRequests = ref<boolean>(false);
 
-    window.addEventListener('scroll', this.handleScroll);
-  },
-  components: { SongItem },
-  methods: {
-    async getSongs() {
-      if (this.pendingRequests) {
-        return;
-      }
+const getSongs = async () => {
+  if (pendingRequests.value) {
+    return;
+  }
 
-      this.pendingRequests = true;
+  pendingRequests.value = true;
 
-      let snapshots;
-      if (this.songs.length) {
-        const lastDoc = await songsCollection
-          .doc(this.songs[this.songs.length - 1].docId)
-          .get();
-        snapshots = await songsCollection
-          .orderBy('modified_name', 'desc')
-          .startAfter(lastDoc)
-          .limit(this.maxPerPage)
-          .get();
-      } else {
-        snapshots = await songsCollection
-          .orderBy('modified_name', 'desc')
-          .limit(this.maxPerPage)
-          .get();
-      }
-      snapshots.forEach((document) => {
-        this.songs.push({
-          ...(document.data() as Song),
-          docId: document.id,
-        });
-      });
-      this.pendingRequests = false;
-    },
-    handleScroll() {
-      const { scrollTop, offsetHeight } = document.documentElement;
-      const { innerHeight } = window;
-      const bottomOfWindow =
-        Math.round(scrollTop) + innerHeight === offsetHeight;
-      if (bottomOfWindow) {
-        this.getSongs();
-      }
-    },
-  },
-  beforeUnmount() {
-    window.removeEventListener('scroll', this.handleScroll);
-  },
+  let snapshots;
+  if (songs.length) {
+    const lastDoc = await songsCollection
+      .doc(songs[songs.length - 1].docId)
+      .get();
+    snapshots = await songsCollection
+      .orderBy('modified_name', 'desc')
+      .startAfter(lastDoc)
+      .limit(maxPerPage.value)
+      .get();
+  } else {
+    snapshots = await songsCollection
+      .orderBy('modified_name', 'desc')
+      .limit(maxPerPage.value)
+      .get();
+  }
+  snapshots.forEach((document) => {
+    songs.push({
+      ...(document.data() as Song),
+      docId: document.id,
+    });
+  });
+  pendingRequests.value = false;
+};
+const handleScroll = () => {
+  const { scrollTop, offsetHeight } = document.documentElement;
+  const { innerHeight } = window;
+  const bottomOfWindow = Math.round(scrollTop) + innerHeight === offsetHeight;
+  if (bottomOfWindow) {
+    getSongs();
+  }
+};
+
+getSongs();
+
+window.addEventListener('scroll', handleScroll);
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
 });
 </script>

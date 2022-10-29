@@ -18,6 +18,11 @@ firebase.initializeApp(firebaseConfig);
 export const auth = firebase.auth();
 export const storage = firebase.storage();
 export const db = firebase.firestore();
+
+db.enablePersistence().catch((e) => {
+  console.log(`Firebase persistence error: ${e.code}`);
+});
+
 export const usersCollection = db.collection('users');
 export const songsCollection = db.collection('songs');
 export const commentsCollection = db.collection('comments');

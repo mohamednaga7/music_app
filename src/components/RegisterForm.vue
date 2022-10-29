@@ -118,58 +118,47 @@
   </vee-form>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import useUserState, { type RegisterFormValues } from '@/stores/user';
-import { mapActions } from 'pinia';
 
-export default defineComponent({
-  name: 'RegisterForm',
-  props: ['closeModal'],
-  data() {
-    return {
-      schema: {
-        name: 'required|min:3|max:100|alpha_spaces',
-        email: 'required|min:3|max:100|email',
-        age: 'required|min_value:18|max_value:100',
-        password: 'required|min:9|max:100|excluded:password',
-        confirm_password: 'passwords_mismatch:@password',
-        country: 'required|country_excluded:Antarctica',
-        tos: 'tos',
-      },
-      userData: {
-        country: 'USA',
-      },
-      registration_in_submission: false,
-      registration_show_alert: false,
-      registration_alert_variant: 'bg-blue-500',
-      registration_alert_msg: 'Please wait! Your account is being created.',
-    };
-  },
-  methods: {
-    ...mapActions(useUserState, {
-      createUser: 'register',
-    }),
-    async register(values: RegisterFormValues) {
-      this.registration_show_alert = true;
-      this.registration_in_submission = true;
-      this.registration_alert_variant = 'bg-blue-500';
-      this.registration_alert_msg =
-        'Please wait! Your account is being created.';
+const userStore = useUserState();
 
-      try {
-        this.createUser(values);
-        this.registration_alert_variant = 'bg-green-500';
-        this.registration_alert_msg = 'Success! Your account has been created.';
-        window.location.reload();
-      } catch (e: any) {
-        console.log(e);
-        this.registration_in_submission = false;
-        this.registration_alert_variant = 'bg-red-500';
-        this.registration_alert_msg =
-          e.message || 'An unexpected error occured. Please try again later.';
-      }
-    },
-  },
-});
+const schema = {
+  name: 'required|min:3|max:100|alpha_spaces',
+  email: 'required|min:3|max:100|email',
+  age: 'required|min_value:18|max_value:100',
+  password: 'required|min:9|max:100|excluded:password',
+  confirm_password: 'passwords_mismatch:@password',
+  country: 'required|country_excluded:Antarctica',
+  tos: 'tos',
+};
+
+const userData = ref({ country: 'USA' });
+const registration_in_submission = ref(false);
+const registration_show_alert = ref(false);
+const registration_alert_variant = ref('bg-blue-500');
+const registration_alert_msg = ref(
+  'Please wait! Your account is being created.'
+);
+
+const register = async (values: RegisterFormValues) => {
+  registration_show_alert.value = true;
+  registration_in_submission.value = true;
+  registration_alert_variant.value = 'bg-blue-500';
+  registration_alert_msg.value = 'Please wait! Your account is being created.';
+
+  try {
+    userStore.register(values);
+    registration_alert_variant.value = 'bg-green-500';
+    registration_alert_msg.value = 'Success! Your account has been created.';
+    window.location.reload();
+  } catch (e: any) {
+    console.log(e);
+    registration_in_submission.value = false;
+    registration_alert_variant.value = 'bg-red-500';
+    registration_alert_msg.value =
+      e.message || 'An unexpected error occured. Please try again later.';
+  }
+};
 </script>

@@ -2,7 +2,7 @@
   <div
     class="fixed z-50 inset-0 overflow-y-auto"
     id="modal"
-    :class="hiddenClass"
+    :class="modalStore.hiddenClass"
   >
     <div
       class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
@@ -71,31 +71,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import { modalStore } from '@/stores/modal';
-import { mapState, mapWritableState } from 'pinia';
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { modalStore as useModalStore } from '@/stores/modal';
+import { ref } from 'vue';
 import RegisterForm from './RegisterForm.vue';
 import LoginForm from './LoginForm.vue';
 
-export default defineComponent({
-  name: 'AppAuth',
-  data() {
-    return {
-      tab: 'login',
-    };
-  },
-  computed: {
-    ...mapState(modalStore, ['hiddenClass']),
-    ...mapWritableState(modalStore, {
-      modalVisibility: 'isOpen',
-    }),
-  },
-  methods: {
-    closeModal() {
-      this.modalVisibility = false;
-    },
-  },
-  components: { RegisterForm, LoginForm },
-});
+const modalStore = useModalStore();
+const tab = ref<string>('login');
+
+const closeModal = () => {
+  modalStore.isOpen = false;
+};
 </script>

@@ -42,49 +42,46 @@
   </vee-form>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { defineProps, ref } from 'vue';
 import useUserStore from '@/stores/user';
-import { mapActions } from 'pinia';
 
-export default defineComponent({
-  name: 'LoginForm',
-  props: ['closeModal'],
-  data() {
-    return {
-      loginSchema: {
-        email: 'required|email',
-        password: 'required|min:9|max:100',
-      },
-      login_in_submission: false,
-      login_show_alert: false,
-      login_alert_variant: 'bg-blue-500',
-      login_alert_msg: 'Please wait! We are logging you in.',
-    };
-  },
-  methods: {
-    ...mapActions(useUserStore, {
-      loginUser: 'login',
-    }),
-    async login({ email, password }: { email: string; password: string }) {
-      this.login_show_alert = true;
-      this.login_in_submission = true;
-      this.login_alert_variant = 'bg-blue-500';
-      this.login_alert_msg = 'Please wait! We are logging you in.';
-      try {
-        this.loginUser({ email, password });
-        this.login_alert_variant = 'bg-green-500';
-        this.login_alert_msg = 'Success! Your account have been logged in.';
-        setTimeout(() => {
-          this.closeModal();
-        }, 1000);
-      } catch (e: any) {
-        this.login_in_submission = false;
-        this.login_alert_variant = 'bg-red-500';
-        this.login_alert_msg =
-          e.message || 'An unexpected error occured. Please try again later.';
-      }
-    },
-  },
-});
+const props = defineProps(['closeModal']);
+
+const loginSchema = {
+  email: 'required|email',
+  password: 'required|min:9|max:100',
+};
+const login_in_submission = ref(false);
+const login_show_alert = ref(false);
+const login_alert_variant = ref('bg-blue-500');
+const login_alert_msg = ref('Please wait! We are logging you in.');
+
+const userStore = useUserStore();
+
+const login = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  login_show_alert.value = true;
+  login_in_submission.value = true;
+  login_alert_variant.value = 'bg-blue-500';
+  login_alert_msg.value = 'Please wait! We are logging you in.';
+  try {
+    userStore.login({ email, password });
+    login_alert_variant.value = 'bg-green-500';
+    login_alert_msg.value = 'Success! Your account have been logged in.';
+    setTimeout(() => {
+      props.closeModal();
+    }, 1000);
+  } catch (e: any) {
+    login_in_submission.value = false;
+    login_alert_variant.value = 'bg-red-500';
+    login_alert_msg.value =
+      e.message || 'An unexpected error occured. Please try again later.';
+  }
+};
 </script>
